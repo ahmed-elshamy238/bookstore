@@ -1,0 +1,88 @@
+﻿using Bookstore.DAL;
+using Bookstore.BLL.DTOs;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Bookstore.BLL.Services
+{
+    public class BookService : IBookService
+    {
+        private readonly IUnitOfWork _unitOfWork;
+        public BookService(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+
+        public async Task<IEnumerable<BookDto>> GetAllBooksAsync()
+        {
+            var books = await _unitOfWork.Books.GetAllAsync();
+            return books.Select(b => new BookDto
+            {
+                Id = b.Id,
+                Title = b.Title,
+                Author = b.Author,
+                Description = b.Description,
+                Price = b.Price,
+                CategoryId = b.CategoryId,
+                CategoryName = b.Category?.Name,
+                Reviews = b.Reviews?.Select(r => new ReviewDto
+                {
+                    Id = r.Id,
+                    BookId = r.BookId,
+                    UserId = r.UserId,
+                    Rating = r.Rating,
+                    Comment = r.Comment,
+                    UserName = r.User?.UserName
+                }).ToList() ?? new List<ReviewDto>()
+            });
+        }
+
+        public async Task<BookDto> GetBookByIdAsync(int id)
+        {
+            var book = await _unitOfWork.Books.GetByIdAsync(id);
+            if (book == null) return null;
+            return new BookDto
+            {
+                Id = book.Id,
+                Title = book.Title,
+                Author = book.Author,
+                Description = book.Description,
+                Price = book.Price,
+                CategoryId = book.CategoryId,
+                CategoryName = book.Category?.Name,
+                Reviews = book.Reviews?.Select(r => new ReviewDto
+                {
+                    Id = r.Id,
+                    BookId = r.BookId,
+                    UserId = r.UserId,
+                    Rating = r.Rating,
+                    Comment = r.Comment,
+                    UserName = r.User?.UserName
+                }).ToList() ?? new List<ReviewDto>()
+            };
+        }
+
+        public async Task<BookDto> AddBookAsync(BookDto bookDto)
+        {
+            var book = new Book
+            {
+                Title = bookDto.Title,
+                Author = bookDto.Author,
+                Description = bookDto.Description,
+                Price = bookDto.Price,
+                CategoryId = bookDto.CategoryId
+            };
+            await _unitOfWork.Books.AddAsync(book);
+            await _unitOfWork.SaveChangesAsync();
+            bookDto.Id = book.Id;
+            return bookDto;
+        }
+
+        public async Task<bool> RemoveBookAsync(int id)
+        {
+            var book = await _unitOfWork.Books.GetByIdAsync(id);
+            if (book == null) return false;
+            _unitOfWork.Books.Remove(book);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
+    }
+}

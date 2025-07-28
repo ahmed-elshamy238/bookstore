@@ -1,0 +1,12 @@
+G:\New folder\Solution1\DAL\bin\Debug\net8.0\DAL.deps.json
+G:\New folder\Solution1\DAL\bin\Debug\net8.0\DAL.dll
+G:\New folder\Solution1\DAL\bin\Debug\net8.0\DAL.pdb
+G:\New folder\Solution1\DAL\obj\Debug\net8.0\DAL.csproj.AssemblyReference.cache
+G:\New folder\Solution1\DAL\obj\Debug\net8.0\DAL.GeneratedMSBuildEditorConfig.editorconfig
+G:\New folder\Solution1\DAL\obj\Debug\net8.0\DAL.AssemblyInfoInputs.cache
+G:\New folder\Solution1\DAL\obj\Debug\net8.0\DAL.AssemblyInfo.cs
+G:\New folder\Solution1\DAL\obj\Debug\net8.0\DAL.csproj.CoreCompileInputs.cache
+G:\New folder\Solution1\DAL\obj\Debug\net8.0\DAL.dll
+G:\New folder\Solution1\DAL\obj\Debug\net8.0\refint\DAL.dll
+G:\New folder\Solution1\DAL\obj\Debug\net8.0\DAL.pdb
+G:\New folder\Solution1\DAL\obj\Debug\net8.0\ref\DAL.dll

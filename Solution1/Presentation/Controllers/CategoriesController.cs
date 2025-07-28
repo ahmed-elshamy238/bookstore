@@ -1,0 +1,58 @@
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using BLL.Services;
+using BLL.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using System.Collections.Generic;
+
+namespace Presentation.Controllers
+{
+    /// <summary>
+    /// API controller for managing categories.
+    /// </summary>
+    [ApiController]
+    [Route("api/v1/categories")]
+    public class CategoriesController : ControllerBase
+    {
+        private readonly ICategoryService _categoryService;
+
+        public CategoriesController(ICategoryService categoryService) => _categoryService = categoryService;
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllAsync() => Ok(await _categoryService.GetAllCategoriesAsync());
+
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<CategoryDto>> GetByIdAsync(int id)
+        {
+            var category = await _categoryService.GetCategoryByIdAsync(id);
+            if (category == null) return NotFound();
+            return Ok(category);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddAsync([FromBody] CategoryDto categoryDto)
+        {
+            await _categoryService.AddCategoryAsync(categoryDto);
+            return CreatedAtAction(nameof(GetByIdAsync), new { id = categoryDto.Id }, categoryDto);
+        }
+
+        [HttpPut]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateAsync([FromBody] CategoryDto categoryDto)
+        {
+            await _categoryService.UpdateCategoryAsync(categoryDto);
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteAsync(int id)
+        {
+            await _categoryService.DeleteCategoryAsync(id);
+            return NoContent();
+        }
+    }
+}

@@ -1,0 +1,73 @@
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Linq;
+using BLL.DTOs;
+using DAL;
+
+namespace BLL.Services
+{
+    /// <summary>
+    /// Service implementation for review operations.
+    /// </summary>
+    public class ReviewService : IReviewService
+    {
+        private readonly IUnitOfWork _unitOfWork;
+
+        public ReviewService(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+
+        public async Task<IEnumerable<ReviewDto>> GetReviewsByBookIdAsync(int bookId)
+        {
+            var reviews = await _unitOfWork.Reviews.FindAsync(r => r.BookId == bookId);
+            var users = await _unitOfWork.Users.GetAllAsync();
+            var userDict = users.ToDictionary(u => u.Id, u => u.UserName);
+            return reviews.Select(r => new ReviewDto
+            {
+                Id = r.Id,
+                UserId = r.UserId,
+                BookId = r.BookId,
+                Comment = r.Comment,
+                Rating = r.Rating,
+                UserName = userDict.ContainsKey(r.UserId) ? userDict[r.UserId] : null
+            });
+        }
+
+        public async Task<ReviewDto> GetReviewByIdAsync(int id)
+        {
+            var r = await _unitOfWork.Reviews.GetByIdAsync(id);
+            if (r == null) return null;
+            var user = await _unitOfWork.Users.GetByIdAsync(r.UserId);
+            return new ReviewDto
+            {
+                Id = r.Id,
+                UserId = r.UserId,
+                BookId = r.BookId,
+                Comment = r.Comment,
+                Rating = r.Rating,
+                UserName = user?.UserName
+            };
+        }
+
+        public async Task AddReviewAsync(ReviewDto reviewDto)
+        {
+            var exists = (await _unitOfWork.Reviews.FindAsync(r => r.UserId == reviewDto.UserId && r.BookId == reviewDto.BookId)).Any();
+            if (exists) return;
+            var review = new Review
+            {
+                UserId = reviewDto.UserId,
+                BookId = reviewDto.BookId,
+                Comment = reviewDto.Comment,
+                Rating = reviewDto.Rating
+            };
+            await _unitOfWork.Reviews.AddAsync(review);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task DeleteReviewAsync(int id)
+        {
+            var review = await _unitOfWork.Reviews.GetByIdAsync(id);
+            if (review == null) return;
+            _unitOfWork.Reviews.Remove(review);
+            await _unitOfWork.SaveChangesAsync();
+        }
+    }
+}

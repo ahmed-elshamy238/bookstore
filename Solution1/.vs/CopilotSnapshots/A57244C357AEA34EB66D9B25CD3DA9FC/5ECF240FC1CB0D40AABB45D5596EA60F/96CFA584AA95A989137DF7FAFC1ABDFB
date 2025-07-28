@@ -1,0 +1,13 @@
+﻿namespace BLL.DTOs
+{
+    /// <summary>
+    /// Data Transfer Object for Favorite entity.
+    /// </summary>
+    public class FavoriteDto
+    {
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public int BookId { get; set; }
+        public string BookTitle { get; set; }
+    }
+}

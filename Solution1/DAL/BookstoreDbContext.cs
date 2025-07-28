@@ -1,0 +1,27 @@
+using Microsoft.EntityFrameworkCore;
+
+namespace DAL
+{
+    /// <summary>
+    /// The application's database context for EF Core.
+    /// </summary>
+    public class BookstoreDbContext : DbContext
+    {
+        public BookstoreDbContext(DbContextOptions<BookstoreDbContext> options) : base(options) { }
+
+        public DbSet<Book> Books { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Favorite> Favorites { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            // Unique review per user per book
+            modelBuilder.Entity<Review>()
+                .HasIndex(r => new { r.UserId, r.BookId })
+                .IsUnique();
+        }
+    }
+}

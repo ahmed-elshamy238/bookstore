@@ -1,0 +1,41 @@
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using BLL.Services;
+using BLL.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using System.Collections.Generic;
+
+namespace Presentation.Controllers
+{
+    /// <summary>
+    /// API controller for managing reviews.
+    /// </summary>
+    [ApiController]
+    [Route("api/v1/reviews")]
+    public class ReviewsController : ControllerBase
+    {
+        private readonly IReviewService _reviewService;
+
+        public ReviewsController(IReviewService reviewService) => _reviewService = reviewService;
+
+        [HttpGet("book/{bookId}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<ReviewDto>>> GetByBookIdAsync(int bookId) => Ok(await _reviewService.GetReviewsByBookIdAsync(bookId));
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> AddAsync([FromBody] ReviewDto reviewDto)
+        {
+            await _reviewService.AddReviewAsync(reviewDto);
+            return Ok();
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteAsync(int id)
+        {
+            await _reviewService.DeleteReviewAsync(id);
+            return NoContent();
+        }
+    }
+}

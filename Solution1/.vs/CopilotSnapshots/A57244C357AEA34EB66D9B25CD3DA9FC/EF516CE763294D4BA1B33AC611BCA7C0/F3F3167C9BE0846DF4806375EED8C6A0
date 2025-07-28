@@ -1,0 +1,18 @@
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using BLL.DTOs;
+
+namespace BLL.Services
+{
+    /// <summary>
+    /// Service interface for user operations.
+    /// </summary>
+    public interface IUserService
+    {
+        Task<UserDto> GetUserByIdAsync(int id);
+        Task<UserDto> GetUserByUserNameAsync(string userName);
+        Task<IEnumerable<UserDto>> GetAllUsersAsync();
+        Task RegisterUserAsync(UserDto userDto, string password);
+        Task<bool> ValidateUserCredentialsAsync(string userName, string password);
+    }
+}

@@ -1,0 +1,36 @@
+﻿using System.IO;
+using System.Text.Json;
+using System.Threading.Tasks;
+using DAL;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Presentation.Seed
+{
+    /// <summary>
+    /// Seeds the in-memory database with data from JSON files at startup.
+    /// </summary>
+    public static class DataSeeder
+    {
+        public static async Task SeedAsync(BookstoreDbContext context)
+        {
+            if (await context.Books.AnyAsync()) return;
+            var books = await ReadSeedDataAsync<Book>("../DAL/SeedData/Book.json");
+            var categories = await ReadSeedDataAsync<Category>("../DAL/SeedData/Category.json");
+            var users = await ReadSeedDataAsync<User>("../DAL/SeedData/User.json");
+            var favorites = await ReadSeedDataAsync<Favorite>("../DAL/SeedData/Favorite.json");
+            var reviews = await ReadSeedDataAsync<Review>("../DAL/SeedData/Review.json");
+            await context.Categories.AddRangeAsync(categories);
+            await context.Books.AddRangeAsync(books);
+            await context.Users.AddRangeAsync(users);
+            await context.Favorites.AddRangeAsync(favorites);
+            await context.Reviews.AddRangeAsync(reviews);
+            await context.SaveChangesAsync();
+        }
+
+        private static async Task<T[]> ReadSeedDataAsync<T>(string path)
+        {
+            using var stream = File.OpenRead(path);
+            return await JsonSerializer.DeserializeAsync<T[]>(stream);
+        }
+    }
+}

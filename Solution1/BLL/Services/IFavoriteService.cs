@@ -1,0 +1,16 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using BLL.DTOs;
+
+namespace BLL.Services
+{
+    /// <summary>
+    /// Service interface for favorite operations.
+    /// </summary>
+    public interface IFavoriteService
+    {
+        Task<IEnumerable<FavoriteDto>> GetFavoritesByUserIdAsync(int userId);
+        Task AddFavoriteAsync(FavoriteDto favoriteDto);
+        Task RemoveFavoriteAsync(int id);
+    }
+}

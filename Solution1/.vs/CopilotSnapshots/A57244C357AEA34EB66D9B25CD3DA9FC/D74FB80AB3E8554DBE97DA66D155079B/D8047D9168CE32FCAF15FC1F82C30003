@@ -1,0 +1,9 @@
+﻿[
+    {
+        "Id": 1,
+        "UserId": 2,
+        "BookId": 1,
+        "Comment": "Great book for developers!",
+        "Rating": 5
+    }
+]

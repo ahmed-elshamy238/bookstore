@@ -1,0 +1,81 @@
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using BLL.Services;
+using BLL.DTOs;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System;
+
+namespace Presentation.Controllers
+{
+    /// <summary>
+    /// API controller for authentication (login/register).
+    /// </summary>
+    [ApiController]
+    [Route("api/v1/auth")]
+    public class AuthController : ControllerBase
+    {
+        private readonly IUserService _userService;
+        private readonly IConfiguration _configuration;
+
+        public AuthController(IUserService userService, IConfiguration configuration)
+        {
+            _userService = userService;
+            _configuration = configuration;
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> LoginAsync([FromBody] LoginRequest request)
+        {
+            if (!await _userService.ValidateUserCredentialsAsync(request.UserName, request.Password))
+                return Unauthorized(new { error = "Invalid credentials" });
+
+            var user = await _userService.GetUserByUserNameAsync(request.UserName);
+            var token = GenerateJwtToken(user);
+            return Ok(new { token });
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest request)
+        {
+            var userDto = new UserDto { UserName = request.UserName, Email = request.Email, Role = "User" };
+            await _userService.RegisterUserAsync(userDto, request.Password);
+            return Ok();
+        }
+
+        private string GenerateJwtToken(UserDto user)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddHours(2),
+                signingCredentials: creds);
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+    }
+
+    public class LoginRequest
+    {
+        public string UserName { get; set; }
+        public string Password { get; set; }
+    }
+
+    public class RegisterRequest
+    {
+        public string UserName { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+    }
+}

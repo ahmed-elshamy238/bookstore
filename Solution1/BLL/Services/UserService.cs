@@ -1,0 +1,60 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Linq;
+using BLL.DTOs;
+using DAL;
+
+namespace BLL.Services
+{
+    /// <summary>
+    /// Service implementation for user operations.
+    /// </summary>
+    public class UserService : IUserService
+    {
+        private readonly IUnitOfWork _unitOfWork;
+
+        public UserService(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+
+        public async Task<UserDto> GetUserByIdAsync(int id)
+        {
+            var user = await _unitOfWork.Users.GetByIdAsync(id);
+            if (user == null) return null;
+            return new UserDto { Id = user.Id, UserName = user.UserName, Email = user.Email, Role = user.Role };
+        }
+
+        public async Task<UserDto> GetUserByUserNameAsync(string userName)
+        {
+            var users = await _unitOfWork.Users.FindAsync(u => u.UserName == userName);
+            var user = users.FirstOrDefault();
+            if (user == null) return null;
+            return new UserDto { Id = user.Id, UserName = user.UserName, Email = user.Email, Role = user.Role };
+        }
+
+        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+        {
+            var users = await _unitOfWork.Users.GetAllAsync();
+            return users.Select(u => new UserDto { Id = u.Id, UserName = u.UserName, Email = u.Email, Role = u.Role });
+        }
+
+        public async Task RegisterUserAsync(UserDto userDto, string password)
+        {
+            var exists = (await _unitOfWork.Users.FindAsync(u => u.UserName == userDto.UserName)).Any();
+            if (exists) return;
+            var user = new User
+            {
+                UserName = userDto.UserName,
+                Email = userDto.Email,
+                PasswordHash = password, // Hashing to be added
+                Role = userDto.Role
+            };
+            await _unitOfWork.Users.AddAsync(user);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<bool> ValidateUserCredentialsAsync(string userName, string password)
+        {
+            var users = await _unitOfWork.Users.FindAsync(u => u.UserName == userName && u.PasswordHash == password); // Hashing to be added
+            return users.Any();
+        }
+    }
+}

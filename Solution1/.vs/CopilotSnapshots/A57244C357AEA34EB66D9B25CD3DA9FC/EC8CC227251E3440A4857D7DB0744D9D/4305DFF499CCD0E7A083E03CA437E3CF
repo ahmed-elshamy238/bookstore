@@ -1,0 +1,18 @@
+﻿[
+    {
+        "Id": 1,
+        "Title": "The Pragmatic Programmer",
+        "Author": "Andrew Hunt, David Thomas",
+        "Description": "A classic book for software developers.",
+        "Price": 39.99,
+        "CategoryId": 1
+    },
+    {
+        "Id": 2,
+        "Title": "Clean Code",
+        "Author": "Robert C. Martin",
+        "Description": "A handbook of agile software craftsmanship.",
+        "Price": 29.99,
+        "CategoryId": 1
+    }
+]

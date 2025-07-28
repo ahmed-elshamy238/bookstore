@@ -1,0 +1,14 @@
+﻿{
+  "Jwt": {
+    "Key": "THIS_IS_A_DEMO_SECRET_KEY_CHANGE_ME",
+    "Issuer": "BookstoreApi",
+    "Audience": "BookstoreApiUsers"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}

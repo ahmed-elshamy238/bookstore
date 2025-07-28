@@ -1,0 +1,16 @@
+﻿[
+    {
+        "Id": 1,
+        "UserName": "admin",
+        "Email": "admin@bookstore.com",
+        "PasswordHash": "adminhash",
+        "Role": "Admin"
+    },
+    {
+        "Id": 2,
+        "UserName": "user1",
+        "Email": "user1@bookstore.com",
+        "PasswordHash": "user1hash",
+        "Role": "User"
+    }
+]

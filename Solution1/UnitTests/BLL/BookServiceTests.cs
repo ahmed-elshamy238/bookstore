@@ -1,0 +1,33 @@
+using Xunit;
+using Moq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using BLL.Services;
+using BLL.DTOs;
+using DAL;
+using System.Linq;
+
+namespace UnitTests.BLL
+{
+    public class BookServiceTests
+    {
+        [Fact]
+        public async Task GetAllBooksAsync_ReturnsBookDtos_WhenBooksExist()
+        {
+            // Arrange
+            var books = new List<Book> { new Book { Id = 1, Title = "Test", Author = "A", Description = "D", Price = 10, CategoryId = 1 } };
+            var categories = new List<Category> { new Category { Id = 1, Name = "Programming" } };
+            var mockUnitOfWork = new Mock<IUnitOfWork>();
+            mockUnitOfWork.Setup(u => u.Books.GetAllAsync()).ReturnsAsync(books);
+            mockUnitOfWork.Setup(u => u.Categories.GetAllAsync()).ReturnsAsync(categories);
+            var service = new BookService(mockUnitOfWork.Object);
+
+            // Act
+            var result = await service.GetAllBooksAsync();
+
+            // Assert
+            Assert.Single(result);
+            Assert.Equal("Test", result.First().Title);
+        }
+    }
+}

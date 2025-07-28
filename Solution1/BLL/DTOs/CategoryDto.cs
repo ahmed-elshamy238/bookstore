@@ -1,0 +1,11 @@
+namespace BLL.DTOs
+{
+    /// <summary>
+    /// Data Transfer Object for Category entity.
+    /// </summary>
+    public class CategoryDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+}

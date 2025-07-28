@@ -1,0 +1,27 @@
+﻿using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+namespace Bookstore.DAL
+{
+    public class BookstoreDbContext : DbContext
+    {
+        public BookstoreDbContext(DbContextOptions<BookstoreDbContext> options) : base(options) { }
+
+        public DbSet<Book> Books { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+        public DbSet<Favorite> Favorites { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Review>()
+                .HasIndex(r => new { r.BookId, r.UserId })
+                .IsUnique();
+        }
+    }
+
+    // ...existing entity classes (Book, Category, User, Review, Favorite)...
+}

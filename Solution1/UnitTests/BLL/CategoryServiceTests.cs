@@ -1,0 +1,31 @@
+using Xunit;
+using Moq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using BLL.Services;
+using BLL.DTOs;
+using DAL;
+using System.Linq;
+
+namespace UnitTests.BLL
+{
+    public class CategoryServiceTests
+    {
+        [Fact]
+        public async Task GetAllCategoriesAsync_ReturnsCategoryDtos_WhenCategoriesExist()
+        {
+            // Arrange
+            var categories = new List<Category> { new Category { Id = 1, Name = "Programming" } };
+            var mockUnitOfWork = new Mock<IUnitOfWork>();
+            mockUnitOfWork.Setup(u => u.Categories.GetAllAsync()).ReturnsAsync(categories);
+            var service = new CategoryService(mockUnitOfWork.Object);
+
+            // Act
+            var result = await service.GetAllCategoriesAsync();
+
+            // Assert
+            Assert.Single(result);
+            Assert.Equal("Programming", result.First().Name);
+        }
+    }
+}

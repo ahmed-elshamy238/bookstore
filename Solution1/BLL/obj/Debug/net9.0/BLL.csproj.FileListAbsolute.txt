@@ -1,0 +1,15 @@
+G:\New folder\Solution1\BLL\bin\Debug\net9.0\BLL.deps.json
+G:\New folder\Solution1\BLL\bin\Debug\net9.0\BLL.dll
+G:\New folder\Solution1\BLL\bin\Debug\net9.0\BLL.pdb
+G:\New folder\Solution1\BLL\bin\Debug\net9.0\DAL.dll
+G:\New folder\Solution1\BLL\bin\Debug\net9.0\DAL.pdb
+G:\New folder\Solution1\BLL\obj\Debug\net9.0\BLL.csproj.AssemblyReference.cache
+G:\New folder\Solution1\BLL\obj\Debug\net9.0\BLL.GeneratedMSBuildEditorConfig.editorconfig
+G:\New folder\Solution1\BLL\obj\Debug\net9.0\BLL.AssemblyInfoInputs.cache
+G:\New folder\Solution1\BLL\obj\Debug\net9.0\BLL.AssemblyInfo.cs
+G:\New folder\Solution1\BLL\obj\Debug\net9.0\BLL.csproj.CoreCompileInputs.cache
+G:\New folder\Solution1\BLL\obj\Debug\net9.0\BLL.csproj.Up2Date
+G:\New folder\Solution1\BLL\obj\Debug\net9.0\BLL.dll
+G:\New folder\Solution1\BLL\obj\Debug\net9.0\refint\BLL.dll
+G:\New folder\Solution1\BLL\obj\Debug\net9.0\BLL.pdb
+G:\New folder\Solution1\BLL\obj\Debug\net9.0\ref\BLL.dll

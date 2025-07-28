@@ -1,0 +1,53 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Linq;
+using BLL.DTOs;
+using DAL;
+
+namespace BLL.Services
+{
+    /// <summary>
+    /// Service implementation for favorite operations.
+    /// </summary>
+    public class FavoriteService : IFavoriteService
+    {
+        private readonly IUnitOfWork _unitOfWork;
+
+        public FavoriteService(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+
+        public async Task<IEnumerable<FavoriteDto>> GetFavoritesByUserIdAsync(int userId)
+        {
+            var favorites = await _unitOfWork.Favorites.FindAsync(f => f.UserId == userId);
+            var books = await _unitOfWork.Books.GetAllAsync();
+            var bookDict = books.ToDictionary(b => b.Id, b => b.Title);
+            return favorites.Select(f => new FavoriteDto
+            {
+                Id = f.Id,
+                UserId = f.UserId,
+                BookId = f.BookId,
+                BookTitle = bookDict.ContainsKey(f.BookId) ? bookDict[f.BookId] : null
+            });
+        }
+
+        public async Task AddFavoriteAsync(FavoriteDto favoriteDto)
+        {
+            var exists = (await _unitOfWork.Favorites.FindAsync(f => f.UserId == favoriteDto.UserId && f.BookId == favoriteDto.BookId)).Any();
+            if (exists) return;
+            var favorite = new Favorite
+            {
+                UserId = favoriteDto.UserId,
+                BookId = favoriteDto.BookId
+            };
+            await _unitOfWork.Favorites.AddAsync(favorite);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task RemoveFavoriteAsync(int id)
+        {
+            var favorite = await _unitOfWork.Favorites.GetByIdAsync(id);
+            if (favorite == null) return;
+            _unitOfWork.Favorites.Remove(favorite);
+            await _unitOfWork.SaveChangesAsync();
+        }
+    }
+}

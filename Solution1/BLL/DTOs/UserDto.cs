@@ -1,0 +1,13 @@
+namespace BLL.DTOs
+{
+    /// <summary>
+    /// Data Transfer Object for User entity.
+    /// </summary>
+    public class UserDto
+    {
+        public int Id { get; set; }
+        public string UserName { get; set; }
+        public string Email { get; set; }
+        public string Role { get; set; }
+    }
+}

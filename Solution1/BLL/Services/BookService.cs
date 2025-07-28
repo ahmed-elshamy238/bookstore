@@ -1,0 +1,93 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using BLL.DTOs;
+using DAL;
+
+namespace BLL.Services
+{
+    /// <summary>
+    /// Service implementation for book operations.
+    /// </summary>
+    public class BookService : IBookService
+    {
+        private readonly IUnitOfWork _unitOfWork;
+
+        public BookService(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
+
+        public async Task<IEnumerable<BookDto>> GetAllBooksAsync()
+        {
+            var books = await _unitOfWork.Books.GetAllAsync();
+            var categories = await _unitOfWork.Categories.GetAllAsync();
+            var categoryDict = new Dictionary<int, string>();
+            foreach (var cat in categories)
+                categoryDict[cat.Id] = cat.Name;
+            var result = new List<BookDto>();
+            foreach (var book in books)
+            {
+                result.Add(new BookDto
+                {
+                    Id = book.Id,
+                    Title = book.Title,
+                    Author = book.Author,
+                    Description = book.Description,
+                    Price = book.Price,
+                    CategoryId = book.CategoryId,
+                    CategoryName = categoryDict.ContainsKey(book.CategoryId) ? categoryDict[book.CategoryId] : null
+                });
+            }
+            return result;
+        }
+
+        public async Task<BookDto> GetBookByIdAsync(int id)
+        {
+            var book = await _unitOfWork.Books.GetByIdAsync(id);
+            if (book == null) return null;
+            var category = await _unitOfWork.Categories.GetByIdAsync(book.CategoryId);
+            return new BookDto
+            {
+                Id = book.Id,
+                Title = book.Title,
+                Author = book.Author,
+                Description = book.Description,
+                Price = book.Price,
+                CategoryId = book.CategoryId,
+                CategoryName = category?.Name
+            };
+        }
+
+        public async Task AddBookAsync(BookDto bookDto)
+        {
+            var book = new Book
+            {
+                Title = bookDto.Title,
+                Author = bookDto.Author,
+                Description = bookDto.Description,
+                Price = bookDto.Price,
+                CategoryId = bookDto.CategoryId
+            };
+            await _unitOfWork.Books.AddAsync(book);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task UpdateBookAsync(BookDto bookDto)
+        {
+            var book = await _unitOfWork.Books.GetByIdAsync(bookDto.Id);
+            if (book == null) return;
+            book.Title = bookDto.Title;
+            book.Author = bookDto.Author;
+            book.Description = bookDto.Description;
+            book.Price = bookDto.Price;
+            book.CategoryId = bookDto.CategoryId;
+            _unitOfWork.Books.Update(book);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task DeleteBookAsync(int id)
+        {
+            var book = await _unitOfWork.Books.GetByIdAsync(id);
+            if (book == null) return;
+            _unitOfWork.Books.Remove(book);
+            await _unitOfWork.SaveChangesAsync();
+        }
+    }
+}

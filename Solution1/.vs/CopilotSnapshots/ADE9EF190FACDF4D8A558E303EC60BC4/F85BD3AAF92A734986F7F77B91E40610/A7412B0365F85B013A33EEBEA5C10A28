@@ -1,0 +1,3 @@
+﻿namespace Bookstore.BLL;
+
+// This file is intentionally left empty. All entity definitions have been moved to their own classes as per best practices.

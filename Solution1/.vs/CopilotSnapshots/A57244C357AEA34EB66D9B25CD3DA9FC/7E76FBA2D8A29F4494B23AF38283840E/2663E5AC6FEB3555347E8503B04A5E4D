@@ -1,0 +1,33 @@
+﻿using Xunit;
+using Moq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using BLL.Services;
+using BLL.DTOs;
+using DAL;
+using System.Linq;
+
+namespace UnitTests.BLL
+{
+    public class ReviewServiceTests
+    {
+        [Fact]
+        public async Task GetReviewsByBookIdAsync_ReturnsReviewDtos_WhenReviewsExist()
+        {
+            // Arrange
+            var reviews = new List<Review> { new Review { Id = 1, UserId = 1, BookId = 1, Comment = "Good", Rating = 5 } };
+            var users = new List<User> { new User { Id = 1, UserName = "user1" } };
+            var mockUnitOfWork = new Mock<IUnitOfWork>();
+            mockUnitOfWork.Setup(u => u.Reviews.FindAsync(It.IsAny<System.Linq.Expressions.Expression<System.Func<Review, bool>>>())).ReturnsAsync(reviews);
+            mockUnitOfWork.Setup(u => u.Users.GetAllAsync()).ReturnsAsync(users);
+            var service = new ReviewService(mockUnitOfWork.Object);
+
+            // Act
+            var result = await service.GetReviewsByBookIdAsync(1);
+
+            // Assert
+            Assert.Single(result);
+            Assert.Equal("user1", result.First().UserName);
+        }
+    }
+}

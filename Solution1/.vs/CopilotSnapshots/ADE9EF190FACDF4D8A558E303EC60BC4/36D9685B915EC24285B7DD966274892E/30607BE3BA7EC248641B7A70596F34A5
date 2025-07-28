@@ -1,0 +1,112 @@
+﻿using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+
+namespace Bookstore.DAL
+{
+    public class BookstoreDbContext : DbContext
+    {
+        public BookstoreDbContext(DbContextOptions<BookstoreDbContext> options) : base(options) { }
+
+        public DbSet<Book> Books { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+        public DbSet<Favorite> Favorites { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Review>()
+                .HasIndex(r => new { r.BookId, r.UserId })
+                .IsUnique();
+        }
+    }
+
+    public interface IRepository<T> where T : class
+    {
+        Task<IEnumerable<T>> GetAllAsync();
+        Task<T> GetByIdAsync(int id);
+        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
+        Task AddAsync(T entity);
+        void Remove(T entity);
+    }
+
+    public class Repository<T> : IRepository<T> where T : class
+    {
+        protected readonly BookstoreDbContext _context;
+        protected readonly DbSet<T> _dbSet;
+
+        public Repository(BookstoreDbContext context)
+        {
+            _context = context;
+            _dbSet = context.Set<T>();
+        }
+
+        public async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.ToListAsync();
+
+        public async Task<T> GetByIdAsync(int id) => await _dbSet.FindAsync(id);
+
+        public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate) => await _dbSet.Where(predicate).ToListAsync();
+
+        public async Task AddAsync(T entity) => await _dbSet.AddAsync(entity);
+
+        public void Remove(T entity) => _dbSet.Remove(entity);
+    }
+
+    public interface IUnitOfWork
+    {
+        IRepository<Book> Books { get; }
+        IRepository<Category> Categories { get; }
+        IRepository<User> Users { get; }
+        IRepository<Review> Reviews { get; }
+        IRepository<Favorite> Favorites { get; }
+        Task<int> SaveChangesAsync();
+    }
+
+    public class UnitOfWork : IUnitOfWork
+    {
+        private readonly BookstoreDbContext _context;
+        public IRepository<Book> Books { get; }
+        public IRepository<Category> Categories { get; }
+        public IRepository<User> Users { get; }
+        public IRepository<Review> Reviews { get; }
+        public IRepository<Favorite> Favorites { get; }
+
+        public UnitOfWork(BookstoreDbContext context)
+        {
+            _context = context;
+            Books = new Repository<Book>(context);
+            Categories = new Repository<Category>(context);
+            Users = new Repository<User>(context);
+            Reviews = new Repository<Review>(context);
+            Favorites = new Repository<Favorite>(context);
+        }
+
+        public async Task<int> SaveChangesAsync() => await _context.SaveChangesAsync();
+    }
+
+    public interface ISpecification<T>
+    {
+        Expression<Func<T, bool>> Criteria { get; }
+    }
+
+    public class Specification<T> : ISpecification<T>
+    {
+        public Specification(Expression<Func<T, bool>> criteria) => Criteria = criteria;
+        public Expression<Func<T, bool>> Criteria { get; }
+    }
+
+    public static class RepositoryExtensions
+    {
+        public static async Task<IEnumerable<T>> FindAsync<T>(this IRepository<T> repository, ISpecification<T> specification) where T : class
+            => await repository.FindAsync(specification.Criteria);
+    }
+
+    // Book, Category, User, Review, Favorite, BookstoreDbContext, IRepository, Repository, IUnitOfWork, UnitOfWork, ISpecification, Specification, RepositoryExtensions
+    // Entity configuration and repository/unit of work patterns are implemented here.
+    // For brevity, only one class/interface per file is recommended for production.
+}

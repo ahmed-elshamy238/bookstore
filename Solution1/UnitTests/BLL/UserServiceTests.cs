@@ -1,0 +1,31 @@
+using Xunit;
+using Moq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using BLL.Services;
+using BLL.DTOs;
+using DAL;
+using System.Linq;
+
+namespace UnitTests.BLL
+{
+    public class UserServiceTests
+    {
+        [Fact]
+        public async Task GetUserByIdAsync_ReturnsUserDto_WhenUserExists()
+        {
+            // Arrange
+            var user = new User { Id = 1, UserName = "test", Email = "test@test.com", Role = "User" };
+            var mockUnitOfWork = new Mock<IUnitOfWork>();
+            mockUnitOfWork.Setup(u => u.Users.GetByIdAsync(1)).ReturnsAsync(user);
+            var service = new UserService(mockUnitOfWork.Object);
+
+            // Act
+            var result = await service.GetUserByIdAsync(1);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("test", result.UserName);
+        }
+    }
+}
